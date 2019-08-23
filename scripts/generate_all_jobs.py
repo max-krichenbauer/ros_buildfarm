@@ -142,6 +142,8 @@ def main(argv=sys.argv[1:]):
                 dry_run=not args.commit)
             generate_blocked_releases_page_job(
                 args.config_url, ros_distro_name, dry_run=not args.commit)
+            generate_blocked_source_entries_page_job(
+                args.config_url, ros_distro_name, dry_run=not args.commit)
 
 
 def generate_check_agents_job(config_url, dry_run=False):
@@ -227,6 +229,18 @@ def generate_blocked_releases_page_job(
         config_url, ros_distro_name, dry_run=False):
     cmd = [
         _resolve_script('status', 'generate_blocked_releases_page_job.py'),
+        config_url,
+        ros_distro_name,
+    ]
+    if dry_run:
+        cmd.append('--dry-run')
+    _check_call(cmd)
+
+
+def generate_blocked_source_entries_page_job(
+        config_url, ros_distro_name, dry_run=False):
+    cmd = [
+        _resolve_script('status', 'generate_blocked_source_entries_page_job.py'),
         config_url,
         ros_distro_name,
     ]
