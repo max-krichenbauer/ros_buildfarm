@@ -104,8 +104,10 @@ def build_blocked_source_entries_page(
                 if blocking_repo == repo_name:
                     # ignore packages in the same repo
                     continue
-                repos_info[repo_name]['repos_blocked_by'][blocking_repo] = _repo_url(prev_dist, repo_name)
-                repos_info[repo_name]['maintainers'][blocking_repo].update(dict(_maintainers(prev_dist, dep)))
+                url = _repo_url(prev_dist, repo_name)
+                repos_info[repo_name]['repos_blocked_by'][blocking_repo] = url
+                new_maintainers = dict(_maintainers(prev_dist, dep))
+                repos_info[repo_name]['maintainers'][blocking_repo].update(new_maintainers)
 
                 # Mark blocking relationship in other direction
                 repos_info[blocking_repo]['repos_blocking'].add(repo_name)
@@ -116,7 +118,8 @@ def build_blocked_source_entries_page(
         repos_to_check = set([repo_name])
         while repos_to_check:
             next_repo = repos_to_check.pop()
-            repos_info[repo_name]['recursive_repos_blocking'].update(repos_info[next_repo]['repos_blocking'])
+            new_repos_blocking = repos_info[next_repo]['repos_blocking']
+            repos_info[repo_name]['recursive_repos_blocking'].update(new_repos_blocking)
             checked_repos.add(next_repo)
             repos_to_check.update(repos_info[next_repo]['repos_blocking'].difference(checked_repos))
 
@@ -878,7 +881,8 @@ def _get_blocked_releases_info(config_url, rosdistro_name, repo_names=None):
                     unreleased_repo_name = \
                         prev_distro_file.release_packages[pkg_name].repository_name
                     repos_blocked_by.add(unreleased_repo_name)
-                    maintainers[unreleased_repo_name].update(dict(_maintainers(prev_distribution, pkg_name)))
+                    new_maintainers = dict(_maintainers(prev_distribution, pkg_name))
+                    maintainers[unreleased_repo_name].update(new_maintainers)
                 if maintainers:
                     repos_info[repo_name]['maintainers'] = maintainers
 
@@ -978,6 +982,7 @@ def _package_dependencies(walker, package):
             limit_depth=1)
     except AssertionError as e:
         print(e, file=sys.stderr)
+
 
 def _released_packages(distro, repo_names=None):
     if repo_names is None:
