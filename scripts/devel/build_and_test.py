@@ -24,7 +24,7 @@ from ros_buildfarm.common import Scope
 from ros_buildfarm.workspace import call_build_tool
 from ros_buildfarm.workspace import clean_workspace
 from ros_buildfarm.workspace import ensure_workspace_exists
-
+from ros_buildfarm.workspace import call_haros
 
 def main(argv=sys.argv[1:]):
     parser = argparse.ArgumentParser(
@@ -53,6 +53,11 @@ def main(argv=sys.argv[1:]):
         '--clean-after',
         action='store_true',
         help='The flag if the workspace should be cleaned after the '
+             'invocation')
+    parser.add_argument(
+        '--run-haros',
+        action='store_true',
+        help='The flag if haros should be run for the workspace after the'
              'invocation')
     args = parser.parse_args(argv)
 
@@ -123,7 +128,9 @@ def main(argv=sys.argv[1:]):
     finally:
         if args.clean_after:
             clean_workspace(args.workspace_root)
-
+    if args.run_haros:
+        # TODO: should we consider its return value?
+        call_haros(args.rosdistro_name, args.workspace_root)
     return rc
 
 

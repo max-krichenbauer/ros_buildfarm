@@ -80,6 +80,13 @@ RUN python3 -u /tmp/wrapper_scripts/apt.py update-install-clean -q -y ccache
     install_lists=install_lists,
 ))@
 
+@(TEMPLATE(
+    'snippet/install_haros.Dockerfile.em',
+    os_name=os_name,
+    os_code_name=os_code_name,
+    testing=testing,
+))@
+
 # After all dependencies are installed, update ccache symlinks.
 # This command is supposed to be invoked whenever a new compiler is installed
 # but that isn't happening. So we invoke it here to make sure all compilers are
@@ -100,7 +107,8 @@ if not testing:
 else:
     cmd += \
         ' /tmp/ros_buildfarm/scripts/devel/build_and_test.py' + \
-        ' --rosdistro-name %s' % rosdistro_name
+        ' --rosdistro-name %s' % rosdistro_name + \
+        ' --run-haros'
 cmd += ' --build-tool ' + build_tool
 if not prerelease_overlay:
     cmd += \

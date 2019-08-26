@@ -41,6 +41,38 @@ def clean_workspace(workspace_root):
     if os.path.exists(test_results_dir):
         shutil.rmtree(test_results_dir)
 
+def call_haros(rosdistro_name, workspace_root, parent_result_spaces=None):
+    # call haros package analysation tool for the packages
+    # found by catkin_topological_order in workspace_root
+
+    # ROS_WORKSPACE is needed for haros but seems to be unset, afterwards
+    # cd to home folder
+    cmd = ''
+    if parent_result_spaces is None:
+        parent_result_spaces = ['/opt/ros/%s' % rosdistro_name, '%s/devel_isolated' % workspace_root]
+    for parent_result_space in reversed(parent_result_spaces):
+        setup_file = os.path.join(parent_result_space, 'setup.sh')
+        if os.path.exists(setup_file):
+            cmd = '. %s && %s' % (setup_file, cmd)
+
+
+    # construct haros.yaml file containing all packages of the particular workspace
+    cmd += 'mkdir -p /tmp/ws/haros/result; '
+    cmd += 'cd /tmp/ws/haros; '
+    cmd += 'echo \"%YAML 1.1\" > haros.yaml;'
+    cmd += 'echo \"---\" >> haros.yaml;'
+    cmd += 'echo \"packages:\" >> haros.yaml;'
+    cmd += 'catkin_topological_order --only-names %s/src | xargs -L1 echo \"   -\" >> haros.yaml;' % workspace_root
+    cmd += 'cd'
+
+    # ROS_WORKSPACE is needed for haros but seems to be unset
+    cmd += '; export ROS_WORKSPACE=%s ;' % workspace_root
+    cmd += 'haros init; haros analyse -p %s/haros/haros.yaml -d %s/haros/result/' % (workspace_root, workspace_root)
+
+    print("Invoking '%s'" % (cmd))
+    return subprocess.call(
+        cmd, shell=True, stderr=subprocess.STDOUT)
+
 
 def call_build_tool(
     build_tool, rosdistro_name, workspace_root, cmake_args=None,
