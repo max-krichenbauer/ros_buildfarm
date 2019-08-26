@@ -37,7 +37,12 @@
       <excludePattern/>
       <messagesPattern/>
       <categoriesPattern/>
-      <parserConfigurations/>
+      <parserConfigurations>
+        <hudson.plugins.warnings.ParserConfiguration>
+          <pattern>ws/haros/result/data/default/compliance/source/*.json</pattern>
+          <parserName>HAROS</parserName>
+        </hudson.plugins.warnings.ParserConfiguration>
+      </parserConfigurations>
       <consoleParsers>
         <hudson.plugins.warnings.ConsoleParser>
           <parserName>CMake</parserName>
