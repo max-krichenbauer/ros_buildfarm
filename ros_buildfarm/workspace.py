@@ -70,8 +70,10 @@ def call_haros(rosdistro_name, workspace_root, parent_result_spaces=None):
     cmd += 'haros init; haros analyse -p %s/haros/haros.yaml -d %s/haros/result/' % (workspace_root, workspace_root)
 
     print("Invoking '%s'" % (cmd))
+    #return subprocess.call(
+    #    cmd, shell=True, stderr=subprocess.STDOUT)
     return subprocess.call(
-        cmd, shell=True, stderr=subprocess.STDOUT)
+        cmd, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 
 def call_build_tool(
